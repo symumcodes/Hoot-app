@@ -4,9 +4,17 @@ import {useParams} from 'react-router-dom';
 import {Container, Row, Col} from 'react-bootstrap';
 import ReviewForm from '../reviewForm/ReviewForm';
 
-import React from 'react'
+import React, {useState} from 'react';
 
-const Reviews = ({getMovieData,movie,reviews,setReviews}) => {
+const Reviews = ({getMovieData,movie,reviews = [],setReviews}) => {
+    const [updatedReviews, setUpdatedReviews] = useState([]);
+
+    if (!reviews) {
+        setReviews([]);
+      }
+      
+
+    console.log(reviews);
 
     const revText = useRef();
     let params = useParams();
@@ -14,7 +22,7 @@ const Reviews = ({getMovieData,movie,reviews,setReviews}) => {
 
     useEffect(()=>{
         getMovieData(movieId);
-    },[])
+    },[movieId])
 
     const addReview = async (e) =>{
         e.preventDefault();
@@ -23,28 +31,28 @@ const Reviews = ({getMovieData,movie,reviews,setReviews}) => {
 
         try
         {
-            const response = await api.post("/api/v1/reviews",{reviewBody:rev.value,imdbId:movieId});
-
-            const updatedReviews = [...reviews, {body:rev.value}];
-    
+            const response = await api.post("/api/v1/reviews",{
+                reviewBody:rev.value,
+                imdbId:movieId
+            });
+            const newReview = { body: rev.value };
+            const updatedReviews = [...reviews, newReview];
+            // setUpdatedReviews(updatedReviews);
+            setReviews(updatedReviews);
             rev.value = "";
     
-            setReviews(updatedReviews);
         }
         catch(err)
         {
             console.error(err);
         }
-        
-
-
-
     }
+    
 
   return (
     <Container>
         <Row>
-            <Col><h3>Reviews</h3></Col>
+            <Col><h2>Reviews</h2></Col>
         </Row>
         <Row className="mt-2">
             <Col>
@@ -55,7 +63,7 @@ const Reviews = ({getMovieData,movie,reviews,setReviews}) => {
                     <>
                         <Row>
                             <Col>
-                                <ReviewForm handleSubmit={addReview} revText={revText} labelText = "Write a Review?" />  
+                                <ReviewForm handleSubmit={addReview} revText={revText} labelText = "Write a Review!" />  
                             </Col>
                         </Row>
                         <Row>
